@@ -44,6 +44,7 @@ int main()
     // potrzebnego do losowania pola
     srand(time(nullptr));
     // wywołanie funkcji rysującej planszę
+    cout << ">>> Kółko i krzyżyk <<<\n";
     draw();
 
     // pętla rund
@@ -67,12 +68,29 @@ int main()
                 if ( (col >= 0 && col <= 2) && (row >= 0 && row <= 2) )
                     break;
             }
-            cout << "Niepoprawne współrzędne. Ma być [a-c][1-3]." << endl;
+            cout << "Niepoprawne współrzędne. Ma być [a-c][1-3].\n";
         }
         
         // ustawienie pola i narysowanie planszy
         board[row][col] = Square::O;
         draw();
+
+        // ruch komputera
+        // komputer nie ma strategii: losuje współrzędne;
+        
+        // pętla powtarzająca losowanie w przypadku strzału w zajęte pole 
+        do {
+            col = rand() % 3;
+            row = rand() % 3;
+        } while (board[row][col] != Square::EMPTY);
+        // wyświetlenie komunikatu o wylosowanych współrzędnych
+        cout << "\nKomputer:" << char(col + 'a') << char(row + '1') << endl;
+
+        // ustawienie pola i narysowanie planszy
+        board[row][col] = Square::X;
+        draw();
+
+        cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
     }
 
     return 0;
