@@ -21,8 +21,18 @@ enum Result {
     TIE = -1
 };
 
+// enumeracja dla typu gracza
+enum Player {
+    USER,
+    COMP
+};
+
 // plansza
 int board[BOARD_SIZE][BOARD_SIZE] = {Square::EMPTY};
+
+// współrzędne ostatniego ruchu (użytkownika lub komputera)
+int col;
+int row;
 
 // funkcja rysująca planszę
 void draw()
@@ -96,6 +106,43 @@ Result check()
     // return (has_empty) ? Result::NO : Result::TIE;
 }
 
+// funkcja z implementacją ruchu gracza-użytkownika
+// użytkownik podaje współrzędne jako łańcuch <kolumna><wiersz>, np. a2
+void play_user()
+{        
+    // pętla wprowadzania współrzędnych
+    while (true) {
+        cout << "\nPodaj współrzędne: ";
+        string s;
+        cin >> s;
+        // sprawdzenie poprawności wprowadzonych danych
+        // jeżeli są niepoprawne, pętla while wykonuje ponowną iterację
+        // jeżeli są poprawne, wyskakujemy z pętli (break)
+        if (s.length() == 2) {
+            col = s[0] - 'a';
+            row = s[1] - '1';
+
+            if ( (col >= 0 && col <= 2) && (row >= 0 && row <= 2) )
+                break;
+        }
+        cout << "Niepoprawne współrzędne. Ma być [a-c][1-3].\n";
+    }
+}
+
+// funkcja z implementacją ruchu gracza-komputera;
+// komputer nie ma strategii: losuje współrzędne
+void play_comp()
+{
+    // pętla powtarzająca losowanie w przypadku strzału w zajęte pole 
+    do {
+        col = rand() % 3;
+        row = rand() % 3;
+    } while (board[row][col] != Square::EMPTY);
+    // wyświetlenie komunikatu o wylosowanych współrzędnych
+    cout << "\nKomputer: " << char(col + 'a') << char(row + '1') << endl;
+}
+
+
 int main()
 {
     // inicjalizacja generatora liczb pseudolosowych
@@ -105,34 +152,30 @@ int main()
     cout << ">>> Kółko i krzyżyk <<<\n";
     draw();
 
+    // losowanie rozpoczynającego
+    int player = rand() % 2;
+
     // pętla rund
     while (true) {
-        // ruch gracza
-        // użytkownik podaje współrzędne jako łańcuch <kolumna><wiersz>, np. a2
-        
-        // pętla wprowadzania współrzędnych
-        int col, row;
-        while (true) {
-            cout << "\nPodaj współrzędne: ";
-            string s;
-            cin >> s;
-            // sprawdzenie poprawności wprowadzonych danych
-            // jeżeli są niepoprawne, pętla while wykonuje ponowną iterację
-            // jeżeli są poprawne, wyskakujemy z pętli (break)
-            if (s.length() == 2) {
-                col = s[0] - 'a';
-                row = s[1] - '1';
-
-                if ( (col >= 0 && col <= 2) && (row >= 0 && row <= 2) )
-                    break;
-            }
-            cout << "Niepoprawne współrzędne. Ma być [a-c][1-3].\n";
+        // sprawdzanie typu gracza;
+        // zmienna player jest inkrementowana w każdej rundzie;
+        // badamy, czy jest parzysta (USER=0) czy nieparzysta (COMP=1)
+        if (player % 2 == Player::USER) {
+            play_user();
+            board[row][col] = Square::O;
         }
-        
-        // ustawienie pola i narysowanie planszy
-        board[row][col] = Square::O;
+        else {
+            play_comp();
+            board[row][col] = Square::X;
+        }
+        // // zamiast powtórzenia w if-else ustawiania pola planszy
+        // // można zrobić np. tak:
+        // board[row][col] = (player % 2 == Player::USER) ? Square::O : Square::X;
+
+        // narysowanie planszy
         draw();
 
+        // sprawdzenie planszy i wyświetlenie rozstrzygnięcia (jeżeli jest)
         Result res = check();
         if (res != Result::NO) {
             cout << "\n\n";
@@ -151,22 +194,8 @@ int main()
             break;
         }
 
-
-        // // ruch komputera
-        // // komputer nie ma strategii: losuje współrzędne;
-
-        // // pętla powtarzająca losowanie w przypadku strzału w zajęte pole 
-        do {
-            col = rand() % 3;
-            row = rand() % 3;
-        } while (board[row][col] != Square::EMPTY);
-        // wyświetlenie komunikatu o wylosowanych współrzędnych
-        cout << "\nKomputer:" << char(col + 'a') << char(row + '1') << endl;
-
-        // ustawienie pola i narysowanie planszy
-        board[row][col] = Square::X;
-        draw();
-
+        // zmiana gracza
+        player += 1;
         cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
     }
 
